@@ -12,41 +12,45 @@ namespace Kursach_TP_Core.Forms.Postman
         //Изменение статуса посылки на принято к доставке
         public bool PackageInDelivered(string packId)
         {
-            KursachDbContext db = new();
-            var packages = db.Packages.ToList();
-
-            foreach (var package in packages)
+            using (KursachDbContext db = new())
             {
-                if (package.IdPack == packId)
-                {
-                    package.Status = 1;
-                    db.Update(package);
-                    db.SaveChanges();
-                    return true;
-                }
-            }
+                var packages = db.Packages.ToList();
 
-            return false;
+                foreach (var package in packages)
+                {
+                    if (package.IdPack == packId)
+                    {
+                        package.Status = 1;
+                        db.Update(package);
+                        db.SaveChanges();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
 
         //Изменение статуса посылки на доаставлено
         public bool PackageDelivered(string packId)
         {
-            KursachDbContext db = new();
-            var packages = db.Packages.ToList();
-
-            foreach (var package in packages)
+            using (KursachDbContext db = new())
             {
-                if (package.IdPack == packId)
-                {
-                    package.Status = 2;
-                    db.Update(package);
-                    db.SaveChanges();
-                    return true;
-                }
-            }
+                var packages = db.Packages.ToList();
 
-            return false;
+                foreach (var package in packages)
+                {
+                    if (package.IdPack == packId)
+                    {
+                        package.Status = 2;
+                        db.Update(package);
+                        db.SaveChanges();
+                        return true;
+                    }
+                }
+
+                return false;
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Kursach_TP_Core.Forms.Operator;
+﻿using Kursach_TP_Core.Forms.Admin;
+using Kursach_TP_Core.Forms.Operator;
 using Kursach_TP_Core.Forms.Postman;
 using Kursach_TP_Core.Forms.User;
 using Microsoft.VisualBasic.Logging;
@@ -33,17 +34,19 @@ namespace Kursach_TP_Core.Forms.Share
             password = textBox2.Text;
 
             role = share.Login(login, password);
-            //User = 0,Admin = 1,Operator = 2,Postman = 3
+            //User = 0,Admin = 1+index,Operator = 2,Postman = 3
             if (role == 0)
             {
                 MessageBox.Show("Авторизация прошла успешно.\nДобро пожаловать " + login);
                 userActions = new();
                 userActions.Show();
             }
-            else if (role == 1)
+            else if (role > 3)
             {
                 MessageBox.Show("Авторизация прошла успешно.\nДобро пожаловать администратор " + login);
-                
+                admActions = new();
+                admActions.Show();
+                Admin_.index = role-1;
             }
             else if (role == 2)
             {
@@ -70,6 +73,7 @@ namespace Kursach_TP_Core.Forms.Share
         private UserActions userActions;
         private OperatorActions operActions;
         private PostmanActions postActions;
+        private AdminActions admActions;
 
 
         private void button3_Click(object sender, EventArgs e)

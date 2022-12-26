@@ -12,106 +12,114 @@ namespace Kursach_TP_Core
     {
         public bool Registration(string mail, string login, string password)
         {
-            KursachDbContext db = new();
-
-            var users = db.Users.ToList();
-            foreach (var user in users)
+            using (KursachDbContext db = new())
             {
-                if (user.Mail == mail || user.Login == login)
-                    return false;
-            }
+                var users = db.Users.ToList();
+                foreach (var user in users)
+                {
+                    if (user.Mail == mail || user.Login == login)
+                        return false;
+                }
 
-            db.Users.Add(new User { Login = login, Mail = mail, Password = password});
-            db.SaveChanges();
-            return true;
+                db.Users.Add(new User { Login = login, Mail = mail, Password = password });
+                db.SaveChanges();
+                return true;
+            }
         }
 
         public int Login(string login, string password)
-        {
-            KursachDbContext db = new();
-
-            //Авторизация пользователей
-            var users = db.Users.ToList();
-            foreach (var user in users)
             {
-                if (user.Login == login && user.Password == password)
-                    return 0;
-            }
-
-            //Авторизация работников
-            var workers = db.Workers.ToList();
-            foreach (var worker in workers)
+            using (KursachDbContext db = new())
             {
-                if (worker.Login == login && worker.Password == password)
-                    return worker.Role;
-            }
+                //Авторизация пользователей
+                var users = db.Users.ToList();
+                foreach (var user in users)
+                {
+                    if (user.Login == login && user.Password == password)
+                        return 0;
+                }
 
-            return -1;
+                //Авторизация работников
+                var workers = db.Workers.ToList();
+                foreach (var worker in workers)
+                {
+                    if (worker.Login == login && worker.Password == password)
+                    {
+                        if (worker.Role == 1)
+                            return worker.Index + 1;
+                        return worker.Role;
+                    }
+                }
+
+                return -1;
+            }
         }
 
         public string CheckPackage(string packNum)
         {
-            KursachDbContext db = new();
-            string result = "";
-
-            var packages = db.Packages.ToList();
-            foreach (var package in packages)
+            using (KursachDbContext db = new())
             {
-                if (package.IdPack == packNum)
+                string result = "";
+
+                var packages = db.Packages.ToList();
+                foreach (var package in packages)
                 {
-                    result = "Ваша посылка:\n" + "Id: " + package.IdPack + "\nПолучатель: "
-                        + package.Surname + " " + package.Name;
-
-                    switch (package.Status)
+                    if (package.IdPack == packNum)
                     {
-                        case 0:
-                            result += "\nВаша посылка принята в отделение.";
-                            break;
-                        case 1:
-                            result += "\nВаша посылка принята в доставке.";
-                            break;
-                        case 2:
-                            result += "\nВаша посылка доставлена.";
-                            break;
-                        case 3:
-                            result += "\nВаша посылка выдана.";
-                            break;
-                    }
+                        result = "Ваша посылка:\n" + "Id: " + package.IdPack + "\nПолучатель: "
+                            + package.Surname + " " + package.Name;
 
-                    //Получаем фамилию и имя получателя
-                    var senders = db.Senders.ToList();
-                    foreach (var sender in senders)
-                    {
-                        if (sender.PassportNum == package.Sender)
+                        switch (package.Status)
                         {
-                            result += "\nОтправитель: " + sender.Surname + " " + sender.Name;
-                            break;
+                            case 0:
+                                result += "\nВаша посылка принята в отделение.";
+                                break;
+                            case 1:
+                                result += "\nВаша посылка принята к доставке.";
+                                break;
+                            case 2:
+                                result += "\nВаша посылка доставлена.";
+                                break;
+                            case 3:
+                                result += "\nВаша посылка выдана.";
+                                break;
                         }
-                    }
 
-                    //Получаем место отправления и место получения
-                    var places = db.Places.ToList();
-                    foreach (var place in places)
-                    {
-                        if (place.Id == package.IdPlaceIn)
+                        //Получаем фамилию и имя получателя
+                        var senders = db.Senders.ToList();
+                        foreach (var sender in senders)
                         {
-                            result += "\nМесто получения: " + place.Country + " " + place.Town + " " + place.Index;
-                            break;
+                            if (sender.PassportNum == package.Sender)
+                            {
+                                result += "\nОтправитель: " + sender.Surname + " " + sender.Name;
+                                break;
+                            }
                         }
-                    }
 
-                    foreach (var place in places)
-                    {
-                        if (place.Id == package.IdPlaceOut)
+                        //Получаем место отправления и место получения
+                        var places = db.Places.ToList();
+                        foreach (var place in places)
                         {
-                            result += "\nМесто отправления: " + place.Country + " " + place.Town + " " + place.Index;
-                            break;
+                            if (place.Id == package.IdPlaceIn)
+                            {
+                                result += "\nМесто получения: " + place.Country + " " + place.Town + " " + place.Index;
+                                break;
+                            }
                         }
+
+                        foreach (var place in places)
+                        {
+                            if (place.Id == package.IdPlaceOut)
+                            {
+                                result += "\nМесто отправления: " + place.Country + " " + place.Town + " " + place.Index;
+                                break;
+                            }
+                        }
+                        break;
                     }
-                    break;
                 }
+                return result;
             }
-            return result;
         }
     }
 }

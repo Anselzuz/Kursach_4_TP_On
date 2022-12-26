@@ -12,7 +12,7 @@ public partial class Worker
 
     public int Role { get; set; }
 
-    public int? Index { get; set; }
+    public int Index { get; set; }
 
     public virtual Department? IndexNavigation { get; set; }
 }
